@@ -3,7 +3,7 @@ import { UsersService } from "./users.service";
 import { randomBytes, scrypt as _scrypt } from "crypto";
 import { promisify } from "util";
 import Cookies from 'js-cookie';
-
+const jsonwebtoken = require("jsonwebtoken");
 const scrypt = promisify(_scrypt);
 
 @Injectable()
@@ -39,10 +39,11 @@ export class AuthService {
         const [salt, storedHash] = user.password.split('.');
 
         const hash = await (scrypt(password, salt, 32)) as Buffer;
-
+        const authToken = jsonwebtoken.sign({ email, password }, "DUMMYKEY");
         if (storedHash !== hash.toString('hex')) {
             throw new BadRequestException('Wrong password')
         }
+
         return user;
     }
 } 
