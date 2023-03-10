@@ -17,7 +17,7 @@ import { UserDto } from './dtos/user.dto';
 import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthGuard } from 'src/guards/auth.guard';
+// import { AuthGuard } from 'src/guards/auth.guard';
 import { LoginUserDto } from './dtos/login-user-dto';
 
 @Controller('users')
@@ -33,7 +33,7 @@ export class UsersController {
     //     return this.usersService.findOne(session.userId);
     // }
     @Get('/whoami')
-    @UseGuards(AuthGuard)
+    // @UseGuards(AuthGuard)
     whoAmI(@CurrentUser() user: User) {
         return user;
     }
@@ -44,11 +44,9 @@ export class UsersController {
     // Đăng ký
     @Post('/register')
     async createUser(@Body() body: CreateUserDto, @Session() session: any) {
-        const user = await this.authService.signup(body.email, body.name, body.username, body.password);
-        // const user = await this.authService.signup(body.email, body.password);
+        const user = await this.authService.signup(body.email, body.name, body.username, body.roles, body.password);
         session.userId = user.id;
         return user;
-        // this.usersService.create(body);
 
     }
     //Đăng nhập
@@ -63,7 +61,6 @@ export class UsersController {
     // @UseInterceptors(new SerializeInterceptor(UserDto)) //k tra ve password
     @Get('/:id')
     async findUser(@Param('id') id: string) {
-        // console.log(`handle is running - ${id}`);
         const user = await this.usersService.findOne(parseInt(id));
         if (!user) {
             throw new NotFoundException('User not Found !');

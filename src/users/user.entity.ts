@@ -29,6 +29,10 @@ export class User {
     @Exclude()
     password: string;
 
+    @Column()
+    roles: string;
+
+
     @Column({ default: true })
     admin: boolean;
 

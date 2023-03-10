@@ -24,11 +24,11 @@ export class GetEstimateDto {
     @Max(1000000)
     mileage: number;
 
-    @Transform(({ value }) => parseInt(value))
+    @Transform(({ value }) => parseFloat(value))
     @IsLongitude()
     lng: number;
 
-    @Transform(({ value }) => parseInt(value))
+    @Transform(({ value }) => parseFloat(value))
     @IsLatitude()
     lat: number;
 

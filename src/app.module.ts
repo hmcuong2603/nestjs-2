@@ -37,7 +37,8 @@ import { AsyncLocalStorage } from 'async_hooks';
     ReportsModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService
+  ],
 })
 export class AppModule {
   // constructor(

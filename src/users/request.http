@@ -2,10 +2,11 @@ POST http://localhost:3030/users/register
 Content-Type: application/json
 
 {
-    "email": "test8@gmail.com",
-    "name": "Thắng",
-    "username": "Lê Duy",
-    "password": "123123abc"
+    "email": "anhtu@gmail.com",
+    "name": "Tú",
+    "username": "Lê Anh",
+    "password": "123123abc",
+    "roles": "user"
 }
 
 ###

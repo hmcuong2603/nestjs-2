@@ -7,8 +7,8 @@ export class UsersService {
     static find: () => Promise<User[]>;
     constructor(@InjectRepository(User) private repo: Repository<User>) { }
 
-    create(email: string, name: string, username: string, password: string) {
-        const users = this.repo.create({ email, name, username, password });
+    create(email: string, name: string, username: string, roles: string, password: string) {
+        const users = this.repo.create({ email, name, username, roles, password });
 
         return this.repo.save(users);
     }
