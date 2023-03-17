@@ -32,9 +32,14 @@ export class User {
     @Column()
     roles: string;
 
+    // @Column()
+    // refreshToken: string
 
     @Column({ default: true })
     admin: boolean;
+
+
+
 
     @OneToMany(() => Report, (report) => report.user)
     reports: Report[];
@@ -49,7 +54,6 @@ export class User {
     logUpdate() {
         console.log('Update user Success !', this.id);
     }
-
     @AfterRemove()
     logRemove() {
         console.log('Remove user Success !', this.id);

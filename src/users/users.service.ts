@@ -4,6 +4,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 @Injectable()
 export class UsersService {
+    getById(userId: any) {
+        throw new Error('Method not implemented.');
+    }
     static find: () => Promise<User[]>;
     constructor(@InjectRepository(User) private repo: Repository<User>) { }
 

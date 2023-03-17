@@ -19,19 +19,21 @@ import { User } from './user.entity';
 import { CurrentUser } from './decorators/current-user.decorator';
 // import { AuthGuard } from 'src/guards/auth.guard';
 import { LoginUserDto } from './dtos/login-user-dto';
+import { AuthGuard } from '@nestjs/passport';
+import { RolesGuard } from 'src/guards/role.guard';
+import { Roles } from './decorators/roles.decorator';
+import Role from './role.enum';
+import { JwtStrategy } from './authentication/jwt.strategy';
 
 @Controller('users')
-@Serialize(UserDto)
+
 export class UsersController {
     constructor(
         private usersService: UsersService,
         private authService: AuthService
     ) { }
 
-    // @Get('/whoami')
-    // whoAmI(@Session() session: any) {
-    //     return this.usersService.findOne(session.userId);
-    // }
+    //@Serialize(UserDto) ép kiểu trả về theo Dto
     @Get('/whoami')
     // @UseGuards(AuthGuard)
     whoAmI(@CurrentUser() user: User) {
@@ -43,9 +45,10 @@ export class UsersController {
     }
     // Đăng ký
     @Post('/register')
+    @UseGuards(AuthGuard('jwt'))
     async createUser(@Body() body: CreateUserDto, @Session() session: any) {
         const user = await this.authService.signup(body.email, body.name, body.username, body.roles, body.password);
-        session.userId = user.id;
+        // session.userId = user.id;
         return user;
 
     }
@@ -54,8 +57,9 @@ export class UsersController {
     async signin(@Body() body: LoginUserDto, @Session() session: any) {
 
         const user = await this.authService.signin(body.email, body.password);
-        session.userId = user.id;
-        return user;
+        // session.userId = user.id;
+        console.log('signin', user)
+        return user
     }
 
     // @UseInterceptors(new SerializeInterceptor(UserDto)) //k tra ve password
@@ -76,9 +80,16 @@ export class UsersController {
     getAllUsers(User) {
         return this.usersService.find(User);
     }
+
+    // @Roles(Role.Admin)
+    // @UseGuards(RolesGuard)
     @Delete('/:id')
-    removeUser(@Param('id') id: string) {
-        return this.usersService.remove(parseInt(id));
+    async removeUser(@Param('id') id: string, @CurrentUser() user: User) {
+        console.log(user);
+        if (user.roles !== 'admin') {
+            throw new NotFoundException('Only admin can remove users');
+        }
+        // return this.usersService.remove(parseInt(id));
     }
     @Patch('/:id')
     updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {

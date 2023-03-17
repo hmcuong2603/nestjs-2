@@ -15,4 +15,7 @@ export class CreateUserDto {
 
     @IsString()
     roles: string
+
+    // @IsString()
+    // refreshToken: string;
 }

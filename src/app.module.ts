@@ -9,6 +9,7 @@ import { Report } from './reports/report.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import cookieSession from 'cookie-session';
 import { AsyncLocalStorage } from 'async_hooks';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { AsyncLocalStorage } from 'async_hooks';
     //   useFactory: (config: ConfigService) => {
     //     return {
     //       type: 'sqlite',
-    //       database: config.get<string>('DB_NAME'),
+    //       database: 'db.sqlite,
     //       synchronize: true,
     //       entities: [User, Report]
     //     }
@@ -33,12 +34,17 @@ import { AsyncLocalStorage } from 'async_hooks';
       entities: [User, Report],
       synchronize: true
     }),
+    JwtModule.register({
+      secret: 'yourSecretKey', // set a secret key for JWT encryption
+      signOptions: { expiresIn: '1h' }, // set expiration time for JWT token
+    }),
     UsersModule,
     ReportsModule
   ],
   controllers: [AppController],
   providers: [AppService
   ],
+  exports: [JwtModule]
 })
 export class AppModule {
   // constructor(
