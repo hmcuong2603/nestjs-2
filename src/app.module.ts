@@ -10,6 +10,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import cookieSession from 'cookie-session';
 import { AsyncLocalStorage } from 'async_hooks';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthModule } from './users/auth.module';
 
 @Module({
   imports: [
@@ -39,7 +40,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: '1h' }, // set expiration time for JWT token
     }),
     UsersModule,
-    ReportsModule
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [AppService

@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { RolesGuard } from './guards/role.guard';
 
 const cookieSession = require('cookie-session');
 

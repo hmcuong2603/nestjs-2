@@ -35,8 +35,8 @@ export class User {
     // @Column()
     // refreshToken: string
 
-    @Column({ default: true })
-    admin: boolean;
+    // @Column({ default: true })
+    // admin: boolean;
 
 
 

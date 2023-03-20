@@ -12,18 +12,15 @@ import { Delete, UseGuards } from '@nestjs/common/decorators';
 import { CreateUserDto } from './dtos/create-user-dtos';
 import { UpdateUserDto } from './dtos/update-user-dto';
 import { UsersService } from './users.service';
-import { Serialize } from '../interceptors/serialize.interceptor';
-import { UserDto } from './dtos/user.dto';
 import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { CurrentUser } from './decorators/current-user.decorator';
-// import { AuthGuard } from 'src/guards/auth.guard';
 import { LoginUserDto } from './dtos/login-user-dto';
-import { AuthGuard } from '@nestjs/passport';
-import { RolesGuard } from 'src/guards/role.guard';
-import { Roles } from './decorators/roles.decorator';
 import Role from './role.enum';
-import { JwtStrategy } from './authentication/jwt.strategy';
+import { Roles } from './decorators/roles.decorator';
+import { RolesGuard } from 'src/guards/role.guard';
+import { JwtGuard } from 'src/guards/jwt.guard';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
 
@@ -37,15 +34,21 @@ export class UsersController {
     @Get('/whoami')
     // @UseGuards(AuthGuard)
     whoAmI(@CurrentUser() user: User) {
-        return user;
+        console.log('check wwhoami', user);
+        return user
     }
+    // whoAmi(@Session() session: any) {
+    //     return this.usersService.findOne(session.userId);
+    // }
+
+
     @Post('/signout')
     signOut(@Session() session: any) {
         session.userId = null;
     }
     // Đăng ký
     @Post('/register')
-    @UseGuards(AuthGuard('jwt'))
+    // @UseGuards(AuthGuard('jwt'))
     async createUser(@Body() body: CreateUserDto, @Session() session: any) {
         const user = await this.authService.signup(body.email, body.name, body.username, body.roles, body.password);
         // session.userId = user.id;
@@ -57,7 +60,7 @@ export class UsersController {
     async signin(@Body() body: LoginUserDto, @Session() session: any) {
 
         const user = await this.authService.signin(body.email, body.password);
-        // session.userId = user.id;
+        session.userId = user.id;
         console.log('signin', user)
         return user
     }
@@ -82,13 +85,12 @@ export class UsersController {
     }
 
     // @Roles(Role.Admin)
-    // @UseGuards(RolesGuard)
+    @Roles('admin')
+    // @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Delete('/:id')
     async removeUser(@Param('id') id: string, @CurrentUser() user: User) {
         console.log(user);
-        if (user.roles !== 'admin') {
-            throw new NotFoundException('Only admin can remove users');
-        }
+
         // return this.usersService.remove(parseInt(id));
     }
     @Patch('/:id')
