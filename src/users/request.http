@@ -2,11 +2,12 @@ POST http://localhost:3030/users/register
 Content-Type: application/json
 
 {
-    "email": "test4@gmail.com",
-    "name": "Duy",
-    "username": "Nguyen",
+    "email": "user6@gmail.com",
+    "name": "Tien",
+    "username": "Tran",
     "password": "123123abc",
-    "roles": "user"
+    "roles": "user",
+    "admin": 0
 }
 
 ###
@@ -14,8 +15,8 @@ POST http://localhost:3030/users/login
 Content-Type: application/json
 
 {
-   "email": "myadmin@gmail.com",
-    "password": "123123a"
+   "email": "user3@gmail.com",
+    "password": "123123abc"
 }
 
 ### Find user with id
@@ -32,16 +33,16 @@ GET http://localhost:3030/users?email=anhtu@gmail.com
 GET http://localhost:3030/users
 
 ### Delete user with ID
-DELETE http://localhost:3030/users/7
+DELETE http://localhost:3030/users/2
 
 
 
 ### Update user with ID
-PATCH http://localhost:3030/users/20
+PATCH http://localhost:3030/users/2
 
 Content-Type: application/json
 {
-    "name": "tuan",
+    "name": "Hai",
     "email": "update@gmail.com",
-    "username": "le anh"
+    "username": "Nguyen"
 }

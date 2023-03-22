@@ -7,9 +7,15 @@ const scrypt = promisify(_scrypt);
 
 @Injectable()
 export class AuthService {
+    find(roles: string) {
+        throw new Error('Method not implemented.');
+    }
+    verifyToken(token: string) {
+        throw new Error('Method not implemented.');
+    }
     constructor(
         private readonly usersService: UsersService,
-        private readonly jwtService: JwtService,
+        private jwtService: JwtService,
 
     ) { }
 
@@ -29,11 +35,8 @@ export class AuthService {
         //Create a new user and save it
         const user = await this.usersService.create(email, name, username, roles, result);
         const token = this.createToken(user);
-        // console.log('token register', token);
-
-        //return the user
-        // return user;
         return {
+            id: user.id,
             email: user.email,
             name: user.name,
             username: user.username,
@@ -57,8 +60,6 @@ export class AuthService {
         }
 
         const token = this.createToken(user);
-        // return user;
-        // console.log('token login', token);
 
         return {
             id: user.id,
@@ -66,7 +67,7 @@ export class AuthService {
             name: user.name,
             username: user.username,
             roles: user.roles,
-            access_token: token.accessToken,
+            ...token
         };
 
 
@@ -80,8 +81,8 @@ export class AuthService {
         return user
     }
 
-    private createToken({ email, name, username, roles, password }) {
-        const accessToken = this.jwtService.sign({ email, name, username, roles, password });
+    private createToken({ id, email, name, username, roles, password }) {
+        const accessToken = this.jwtService.sign({ id, email, name, username, roles, password });
         return {
             expiresIn: 720,
             accessToken
