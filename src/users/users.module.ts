@@ -16,7 +16,7 @@ import { JwtStrategy } from './authentication/jwt.strategy';
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: 720 }
+      signOptions: { expiresIn: 86400 }
     })
   ],
   controllers: [UsersController],
@@ -28,6 +28,9 @@ import { JwtStrategy } from './authentication/jwt.strategy';
       useClass: CurrentUserInterceptor
     }
   ],
+  exports: [
+    UsersService, AuthService
+  ]
 })
 export class UsersModule {
   configure(consumer: MiddlewareConsumer) {

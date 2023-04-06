@@ -3,6 +3,7 @@ import { UsersService } from "./users.service";
 import { randomBytes, scrypt as _scrypt } from "crypto";
 import { promisify } from "util";
 import { JwtService } from "@nestjs/jwt";
+import { User } from "./user.entity";
 const scrypt = promisify(_scrypt);
 
 @Injectable()
@@ -13,6 +14,7 @@ export class AuthService {
     verifyToken(token: string) {
         throw new Error('Method not implemented.');
     }
+
     constructor(
         private readonly usersService: UsersService,
         private jwtService: JwtService,
@@ -70,21 +72,25 @@ export class AuthService {
             ...token
         };
 
-
     }
 
-    async validateUser(email) {
-        const user = await this.usersService.find(email);
-        if (!user) {
-            throw new HttpException("Invalid Token", HttpStatus.UNAUTHORIZED);
+
+    async validateUser(token: string) {
+        try {
+            const decoded = this.jwtService.verify(token);
+            // if (decoded.exp < Date.now() / 1000) {
+            //     throw new Error('Token has expired');
+            // }
+            return decoded;
+        } catch (error) {
+            console.log(error);
+            return null;
         }
-        return user
     }
-
     private createToken({ id, email, name, username, roles, password }) {
         const accessToken = this.jwtService.sign({ id, email, name, username, roles, password });
         return {
-            expiresIn: 720,
+            expiresIn: 86400,
             accessToken
         }
     }

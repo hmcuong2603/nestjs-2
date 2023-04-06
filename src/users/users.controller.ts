@@ -6,9 +6,9 @@ import {
     Patch,
     Param,
     Query,
-    NotFoundException, Session, UnauthorizedException, ForbiddenException
+    NotFoundException, Session, Request, BadRequestException, Headers, UnauthorizedException
 } from '@nestjs/common';
-import { Delete, Req, UseGuards } from '@nestjs/common/decorators';
+import { Delete } from '@nestjs/common/decorators';
 import { CreateUserDto } from './dtos/create-user-dtos';
 import { UpdateUserDto } from './dtos/update-user-dto';
 import { UsersService } from './users.service';
@@ -16,12 +16,7 @@ import { AuthService } from './auth.service';
 import { User } from './user.entity';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { LoginUserDto } from './dtos/login-user-dto';
-import { AuthMiddleware } from './middlewares/auth.middlewares';
-import { Roles } from './decorators/roles.decorator';
-import Role from './role.enum';
-import { RolesGuard } from 'src/guards/role.guard';
-import { AdminGuard } from 'src/guards/admin.guard';
-import { AuthGuard } from '@nestjs/passport';
+
 
 @Controller('users')
 export class UsersController {
@@ -32,32 +27,35 @@ export class UsersController {
 
     //@Serialize(UserDto) ép kiểu trả về theo Dto
     @Get('/whoami')
-    // @UseGuards(AuthGuard)
     whoAmI(@CurrentUser() user: User) {
+        // this.usersService.findOne(user.id)
+        console.log('whoamI', user);
         return user
     }
 
-
     @Post('/signout')
-    signOut(@Session() session: any) {
-        session.userId = null;
+    signOut(@Request() req: any) {
+        // Check if authorization header exists and has a value
+        if (!req.headers.authorization || req.headers.authorization.indexOf(' ') === -1) {
+            throw new BadRequestException('Invalid authorization header');
+        }
+        // Split the header value and get the token
+        const [scheme, token] = req.headers.authorization.split(' ');
+        return { "message": "Logout success" }
     }
+
     // Đăng ký
+
     @Post('/register')
-    // @UseGuards(AuthGuard('jwt'))
     async createUser(@Body() body: CreateUserDto, @Session() session: any) {
         const user = await this.authService.signup(body.email, body.name, body.username, body.roles, body.password);
-        session.userId = user.id;
+        // session.userId = user.id;
         return user;
-
     }
     //Đăng nhập
     @Post('/login')
-    async signin(@Body() body: LoginUserDto, @Session() session: any) {
-
+    async signin(@Body() body: LoginUserDto) {
         const user = await this.authService.signin(body.email, body.password);
-        session.userId = user.id;
-        // console.log('signin', user)
         return user
     }
 
@@ -81,20 +79,28 @@ export class UsersController {
     }
 
     @Delete('/:id')
-    // @UseGuards(AuthGuard('jwt'))
-    @UseGuards(RolesGuard)
-    // @Roles(Role.Admin)
-    async removeUser(@Param('id') id: string, @CurrentUser() user: User) {
-        // console.log(user);
+    async removeUser(@Param('id') id: string, @Headers('authorization') authHeader: string) {
+        const token = authHeader.split(' ')[1];
+        const user = await this.authService.validateUser(token);
+        if (!user) {
+            throw new NotFoundException('Token has expired, Log in again to continue !');
+        }
+        if (user.roles !== 'admin') {
+            throw new UnauthorizedException('Only admin users can perform this action.');
+        }
 
-        // console.log('userDelete', user);
-        // throw new ForbiddenException(); // Xác thực thất bại nếu người dùng không có quyền xóa tài khoản
-        // await this.usersService.remove(parseInt(id));
-        // return { message: 'User deleted successfully' };
         return this.usersService.remove(parseInt(id));
     }
     @Patch('/:id')
-    async updateUser(@Param('id') id: string, @Body() body: UpdateUserDto) {
+    async updateUser(@Param('id') id: string, @Body() body: UpdateUserDto, @Headers('authorization') authHeader: string) {
+        const token = authHeader.split(' ')[1];
+        const user = await this.authService.validateUser(token);
+        if (!user) {
+            throw new NotFoundException('Token has expired, Log in again to continue !');
+        }
+        if (user.roles !== 'admin') {
+            throw new UnauthorizedException('Only admin users can perform this action.');
+        }
         return this.usersService.update(parseInt(id), body);
     }
 }

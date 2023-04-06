@@ -9,7 +9,6 @@ import {
 
 import { Exclude } from 'class-transformer';
 import { Report } from 'src/reports/report.entity';
-import Role from './role.enum';
 
 
 @Entity()
@@ -33,8 +32,6 @@ export class User {
     @Column()
     roles: string;
 
-    // @Column()
-    // refreshToken: string
 
     @Column({ default: true })
     admin: boolean;
